@@ -1,0 +1,66 @@
+# ================================
+# .NET / ASP.NET Core
+# ================================
+
+# Build results
+bin/
+obj/
+
+# Rider / Visual Studio / VS Code
+.vs/
+.vscode/
+.idea/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ASP.NET Core
+Properties/launchSettings.json
+
+# Logs
+*.log
+
+# Test results
+TestResults/
+
+# NuGet packages (opcional — geralmente não versionar)
+*.nupkg
+# packages/
+
+# Environment variables
+.env
+.env.*
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# Publish output
+publish/
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Rider
+.idea/
+
+# SQLite / Local DB
+*.db
+*.db-shm
+*.db-wal
+
+# Backup files
+*.bak
+*.tmp
+*.temp
