@@ -54,6 +54,36 @@ public class TaskController : ControllerBase
         );
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Put(int id, [FromBody] UpdateTaskDto dto)
+    {
+        var existingTask = await _taskService.GetByIdAsync(id);
+        if (existingTask == null)
+        {
+            return NotFound();
+        }
+
+        existingTask.Title = dto.Title;
+        existingTask.Description = dto.Description;
+        existingTask.Status = dto.Status;
+
+        var updatedTask = await _taskService.UpdateAsync(existingTask);
+
+        return Ok(updatedTask);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await _taskService.DeleteAsync(id);
+        if (!success)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
     [HttpPatch("{id}/complete")]
     public async Task<IActionResult> Complete(int id)
     {

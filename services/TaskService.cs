@@ -39,6 +39,36 @@ public class TaskService : ITaskService
         return task;
     }
 
+    public async Task<TaskItem> UpdateAsync(TaskItem task)
+    {
+        if(string.IsNullOrWhiteSpace(task.Title))
+        {
+            throw new ArgumentException("Título é obrigatório.");
+        }
+
+        task.UpdatedAt = DateTime.UtcNow;
+
+        _context.Tasks.Update(task);
+        await _context.SaveChangesAsync();
+
+        return task;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var task = await GetByIdAsync(id);
+        if(task == null)
+        {
+            throw new ArgumentException("Tarefa não encontrada.");
+        } else
+        {
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+    }
+
     public async Task<bool> CompleteAsync(int id)
     {
         var task = await GetByIdAsync(id);
