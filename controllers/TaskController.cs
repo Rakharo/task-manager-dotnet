@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using task_manager_dotnet.Models;
+using task_manager_dotnet.DTOs;
 using task_manager_dotnet.Services.Interfaces;
 
 namespace task_manager_dotnet.Controllers;
@@ -27,7 +27,7 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var task = await _taskService.GetByIdAsync(id);
-        if(task == null)
+        if (task == null)
         {
             return NotFound();
         }
@@ -38,14 +38,7 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] CreateTaskDto dto)
     {
-        var task = new TaskItem
-        {
-            Title = dto.Title,
-            Description = dto.Description,
-            Status = false
-        };
-
-        var createdTask = await _taskService.CreateAsync(task);
+        var createdTask = await _taskService.CreateAsync(dto);
 
         return CreatedAtAction(
             nameof(GetById),
@@ -57,19 +50,15 @@ public class TaskController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTaskDto dto)
     {
-        var existingTask = await _taskService.GetByIdAsync(id);
-        if (existingTask == null)
+        try
+        {
+            var updatedTask = await _taskService.UpdateAsync(id, dto);
+            return Ok(updatedTask);
+        }
+        catch (ArgumentException)
         {
             return NotFound();
         }
-
-        existingTask.Title = dto.Title;
-        existingTask.Description = dto.Description;
-        existingTask.Status = dto.Status;
-
-        var updatedTask = await _taskService.UpdateAsync(existingTask);
-
-        return Ok(updatedTask);
     }
 
     [HttpDelete("{id}")]
@@ -77,9 +66,7 @@ public class TaskController : ControllerBase
     {
         var success = await _taskService.DeleteAsync(id);
         if (!success)
-        {
             return NotFound();
-        }
 
         return NoContent();
     }
@@ -89,9 +76,7 @@ public class TaskController : ControllerBase
     {
         var success = await _taskService.CompleteAsync(id);
         if (!success)
-        {
             return NotFound();
-        }
 
         return NoContent();
     }

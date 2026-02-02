@@ -1,70 +1,68 @@
-using Microsoft.EntityFrameworkCore;
-using task_manager_dotnet.Data;
+
 using task_manager_dotnet.Models;
+using task_manager_dotnet.Repositories.Interfaces;
 using task_manager_dotnet.Services.Interfaces;
+using task_manager_dotnet.DTOs;
+
 
 namespace task_manager_dotnet.Services;
 
 public class TaskService : ITaskService
 {
-    private readonly AppDbContext _context;
+    private readonly ITaskRepository _repository;
 
-    public TaskService(AppDbContext context)
+    public TaskService(ITaskRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllAsync()
+
+    public async Task<List<TaskItem>> GetAllAsync()
     {
-        return await _context.Tasks.ToListAsync();
+        return await _repository.GetAllAsync();
     }
 
     public async Task<TaskItem?> GetByIdAsync(int id)
     {
-        return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+        return await _repository.GetByIdAsync(id);
     }
 
-    public async Task<TaskItem> CreateAsync(TaskItem task)
+    public async Task<TaskItem> CreateAsync(CreateTaskDto dto)
     {
-        if (string.IsNullOrWhiteSpace(task.Title))
+        var task = new TaskItem
         {
-            throw new ArgumentException("Título é obrigatório.");
-        }
+            Title = dto.Title,
+            Description = dto.Description,
+            Status = false,
+            CreatedAt = DateTime.UtcNow
+        };
 
-        task.CreatedAt = DateTime.UtcNow;
-
-        _context.Tasks.Add(task);
-        await _context.SaveChangesAsync();
-
-        return task;
+        return await _repository.CreateAsync(task);
     }
 
-    public async Task<TaskItem> UpdateAsync(TaskItem task)
+    public async Task<TaskItem> UpdateAsync(int id, UpdateTaskDto dto)
     {
-        if(string.IsNullOrWhiteSpace(task.Title))
-        {
-            throw new ArgumentException("Título é obrigatório.");
-        }
+        var task = await _repository.GetByIdAsync(id);
+        if (task == null)
+            throw new ArgumentException("Tarefa não encontrada.");
 
+        task.Title = dto.Title;
+        task.Description = dto.Description;
         task.UpdatedAt = DateTime.UtcNow;
 
-        _context.Tasks.Update(task);
-        await _context.SaveChangesAsync();
-
-        return task;
+        return await _repository.UpdateAsync(task);
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
         var task = await GetByIdAsync(id);
-        if(task == null)
+        if (task == null)
         {
             throw new ArgumentException("Tarefa não encontrada.");
-        } else
+        }
+        else
         {
-            _context.Tasks.Remove(task);
-            await _context.SaveChangesAsync();
-
+            await _repository.RemoveAsync(task);
             return true;
         }
     }
@@ -78,7 +76,7 @@ public class TaskService : ITaskService
         }
 
         task.Status = true;
-        await _context.SaveChangesAsync();
+        await _repository.UpdateAsync(task);
 
         return true;
     }
