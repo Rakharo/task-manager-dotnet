@@ -20,7 +20,8 @@ public class TaskService : ITaskService
             Title = task.Title,
             Description = task.Description,
             Status = task.Status,
-            CreatedAt = task.CreatedAt
+            CreatedAt = task.CreatedAt,
+            UserId = task.UserId
         };
     }
 
