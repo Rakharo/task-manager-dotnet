@@ -14,4 +14,8 @@ public class TaskItem
     public bool Status { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public int UserId { get; set; }
+
+    [ForeignKey("UserId")]
+    public User User { get; set; } = null!;
 }

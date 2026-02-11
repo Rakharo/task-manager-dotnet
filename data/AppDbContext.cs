@@ -11,6 +11,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,5 +33,26 @@ public class AppDbContext : DbContext
             entity.Property(t => t.CreatedAt)
                   .HasColumnName("created_at");
         });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("users");
+
+            entity.HasKey(u => u.Id);
+
+            entity.Property(u => u.Name)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(u => u.Email)
+                .IsRequired()
+                .HasMaxLength(150);
+        });
+
+        modelBuilder.Entity<TaskItem>()
+        .HasOne(t => t.User)
+        .WithMany(u => u.Tasks)
+        .HasForeignKey(t => t.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }

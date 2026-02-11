@@ -10,10 +10,13 @@ namespace task_manager_dotnet.Services;
 public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
+    private readonly IUserRepository _userRepository;
 
-    public TaskService(ITaskRepository repository)
+
+    public TaskService(ITaskRepository repository, IUserRepository userRepository)
     {
         _repository = repository;
+        _userRepository = userRepository;
     }
 
 
@@ -29,10 +32,17 @@ public class TaskService : ITaskService
 
     public async Task<TaskItem> CreateAsync(CreateTaskDto dto)
     {
+        var user = await _userRepository.GetByIdAsync(dto.UserId);
+        if(user == null)
+        {
+            throw new ArgumentException("Usuário não encontrado.");
+        }
+
         var task = new TaskItem
         {
             Title = dto.Title,
             Description = dto.Description,
+            UserId = dto.UserId,
             Status = false,
             CreatedAt = DateTime.UtcNow
         };
