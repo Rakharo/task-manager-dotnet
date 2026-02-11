@@ -16,12 +16,12 @@ public class UserRepository : IUserRepository
 
     public async Task<List<User>> GetAllAsync()
     {
-        return await _context.Users.ToListAsync();
+        return await _context.Users.Include(u => u.Tasks).ToListAsync();
     }
 
     public async Task<User?> GetByIdAsync(int id)
     {
-        return await _context.Users.FirstOrDefaultAsync(t => t.Id == id);
+        return await _context.Users.Include(u => u.Tasks).FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<User?> GetByLoginAsync(string login)

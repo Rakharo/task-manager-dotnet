@@ -8,4 +8,5 @@ public class UserResponseDto
     public string? Phone { get; set; }
     public bool Status { get; set; }
     public DateTime CreatedAt { get; set; }
+    public List<TaskResponseDto> Tasks { get; set; } = new();
 }

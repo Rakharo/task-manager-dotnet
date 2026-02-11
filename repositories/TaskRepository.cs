@@ -16,12 +16,12 @@ public class TaskRepository : ITaskRepository
 
     public async Task<List<TaskItem>> GetAllAsync()
     {
-        return await _context.Tasks.ToListAsync();
+        return await _context.Tasks.Include(t => t.User).ToListAsync();
     }
 
     public async Task<TaskItem?> GetByIdAsync(int id)
     {
-        return await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+        return await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<TaskItem> CreateAsync(TaskItem task)

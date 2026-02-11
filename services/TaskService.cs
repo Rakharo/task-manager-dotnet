@@ -12,6 +12,18 @@ public class TaskService : ITaskService
     private readonly ITaskRepository _repository;
     private readonly IUserRepository _userRepository;
 
+    private static TaskResponseDto MapToResponse(TaskItem task)
+    {
+        return new TaskResponseDto
+        {
+            Id = task.Id,
+            Title = task.Title,
+            Description = task.Description,
+            Status = task.Status,
+            CreatedAt = task.CreatedAt
+        };
+    }
+
 
     public TaskService(ITaskRepository repository, IUserRepository userRepository)
     {
@@ -20,20 +32,27 @@ public class TaskService : ITaskService
     }
 
 
-    public async Task<List<TaskItem>> GetAllAsync()
+    public async Task<List<TaskResponseDto>> GetAllAsync()
     {
-        return await _repository.GetAllAsync();
+        var tasks = await _repository.GetAllAsync();
+        return tasks.Select(MapToResponse).ToList();
     }
 
-    public async Task<TaskItem?> GetByIdAsync(int id)
+    public async Task<TaskResponseDto?> GetByIdAsync(int id)
     {
-        return await _repository.GetByIdAsync(id);
+        var task = await _repository.GetByIdAsync(id);
+        if (task == null)
+        {
+            return null;
+        }
+
+        return MapToResponse(task);
     }
 
-    public async Task<TaskItem> CreateAsync(CreateTaskDto dto)
+    public async Task<TaskResponseDto> CreateAsync(CreateTaskDto dto)
     {
         var user = await _userRepository.GetByIdAsync(dto.UserId);
-        if(user == null)
+        if (user == null)
         {
             throw new ArgumentException("Usuário não encontrado.");
         }
@@ -47,10 +66,12 @@ public class TaskService : ITaskService
             CreatedAt = DateTime.UtcNow
         };
 
-        return await _repository.CreateAsync(task);
+        var createdTask = await _repository.CreateAsync(task);
+
+        return MapToResponse(createdTask);
     }
 
-    public async Task<TaskItem> UpdateAsync(int id, UpdateTaskDto dto)
+    public async Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto)
     {
         var task = await _repository.GetByIdAsync(id);
         if (task == null)
@@ -60,12 +81,14 @@ public class TaskService : ITaskService
         task.Description = dto.Description;
         task.UpdatedAt = DateTime.UtcNow;
 
-        return await _repository.UpdateAsync(task);
+        var updatedTask = await _repository.UpdateAsync(task);
+
+        return MapToResponse(updatedTask);
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var task = await GetByIdAsync(id);
+        var task = await _repository.GetByIdAsync(id);
         if (task == null)
         {
             throw new ArgumentException("Tarefa não encontrada.");
@@ -79,7 +102,7 @@ public class TaskService : ITaskService
 
     public async Task<bool> CompleteAsync(int id)
     {
-        var task = await GetByIdAsync(id);
+        var task = await _repository.GetByIdAsync(id);
         if (task == null)
         {
             return false;

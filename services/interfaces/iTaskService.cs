@@ -6,10 +6,10 @@ namespace task_manager_dotnet.Services.Interfaces;
 
 public interface ITaskService
 {
-    Task<List<TaskItem>> GetAllAsync();
-    Task<TaskItem?> GetByIdAsync(int id);
-    Task<TaskItem> CreateAsync(CreateTaskDto dto);
-    Task<TaskItem> UpdateAsync(int id, UpdateTaskDto dto);
+    Task<List<TaskResponseDto>> GetAllAsync();
+    Task<TaskResponseDto?> GetByIdAsync(int id);
+    Task<TaskResponseDto> CreateAsync(CreateTaskDto dto);
+    Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto);
     Task<bool> DeleteAsync(int id);
     Task<bool> CompleteAsync(int id);
 }

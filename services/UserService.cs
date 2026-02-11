@@ -21,7 +21,15 @@ public class UserService : IUserService
             Email = user.Email,
             Phone = user.Phone,
             Status = user.Status,
-            CreatedAt = user.CreatedAt
+            CreatedAt = user.CreatedAt,
+            Tasks = user.Tasks.Select(t => new TaskResponseDto
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                Status = t.Status,
+                CreatedAt = t.CreatedAt
+            }).ToList()
         };
     }
 
@@ -42,7 +50,7 @@ public class UserService : IUserService
     public async Task<UserResponseDto?> GetByIdAsync(int id)
     {
         var user = await _userRepository.GetByIdAsync(id);
-        if(user == null)
+        if (user == null)
         {
             return null;
         }
