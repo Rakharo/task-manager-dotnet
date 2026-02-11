@@ -6,10 +6,10 @@ namespace task_manager_dotnet.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<List<User>> GetAllAsync();
-    Task<User?> GetByIdAsync(int id);
-    Task<User> CreateAsync(CreateUserDto dto);
-    Task<User> UpdateAsync(int id, UpdateUserDto dto);
+    Task<List<UserResponseDto>> GetAllAsync();
+    Task<UserResponseDto?> GetByIdAsync(int id);
+    Task<UserResponseDto> CreateAsync(CreateUserDto dto);
+    Task<UserResponseDto> UpdateAsync(int id, UpdateUserDto dto);
     Task<bool> DeleteAsync(int id);
     Task<bool> DisableAsync(int id);
 }

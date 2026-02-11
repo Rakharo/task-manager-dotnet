@@ -11,6 +11,20 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
 
+    private static UserResponseDto MapToResponse(User user)
+    {
+        return new UserResponseDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Login = user.Login,
+            Email = user.Email,
+            Phone = user.Phone,
+            Status = user.Status,
+            CreatedAt = user.CreatedAt
+        };
+    }
+
 
     public UserService(IUserRepository userRepository)
     {
@@ -18,26 +32,34 @@ public class UserService : IUserService
     }
 
 
-    public async Task<List<User>> GetAllAsync()
+    public async Task<List<UserResponseDto>> GetAllAsync()
     {
-        return await _userRepository.GetAllAsync();
+        var users = await _userRepository.GetAllAsync();
+
+        return users.Select(MapToResponse).ToList();
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<UserResponseDto?> GetByIdAsync(int id)
     {
-        return await _userRepository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(id);
+        if(user == null)
+        {
+            return null;
+        }
+
+        return MapToResponse(user);
     }
 
-    public async Task<User> CreateAsync(CreateUserDto dto)
+    public async Task<UserResponseDto> CreateAsync(CreateUserDto dto)
     {
         var existingLogin = await _userRepository.GetByLoginAsync(dto.Login);
-        if(existingLogin != null)
+        if (existingLogin != null)
         {
             throw new ArgumentException("Login já está em uso.");
         }
-        
+
         var existingEmail = await _userRepository.GetByEmailAsync(dto.Email);
-        if(existingEmail != null)
+        if (existingEmail != null)
         {
             throw new ArgumentException("Email já está em uso.");
         }
@@ -54,10 +76,12 @@ public class UserService : IUserService
             CreatedAt = DateTime.UtcNow
         };
 
-        return await _userRepository.CreateAsync(user);
+        var createdUser = await _userRepository.CreateAsync(user);
+
+        return MapToResponse(createdUser);
     }
 
-    public async Task<User> UpdateAsync(int id, UpdateUserDto dto)
+    public async Task<UserResponseDto> UpdateAsync(int id, UpdateUserDto dto)
     {
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
@@ -65,13 +89,13 @@ public class UserService : IUserService
             throw new ArgumentException("Usuário não encontrado.");
         }
         var existingLogin = await _userRepository.GetByLoginAsync(dto.Login);
-        if(existingLogin != null)
+        if (existingLogin != null)
         {
             throw new ArgumentException("Login já está em uso.");
         }
-        
+
         var existingEmail = await _userRepository.GetByEmailAsync(dto.Email);
-        if(existingEmail != null)
+        if (existingEmail != null)
         {
             throw new ArgumentException("Email já está em uso.");
         }
@@ -83,7 +107,9 @@ public class UserService : IUserService
         user.Phone = dto.Phone;
         user.UpdatedAt = DateTime.UtcNow;
 
-        return await _userRepository.UpdateAsync(user);
+        var updatedUser = await _userRepository.UpdateAsync(user);
+
+        return MapToResponse(updatedUser);
     }
 
     public async Task<bool> DeleteAsync(int id)
