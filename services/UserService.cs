@@ -10,6 +10,7 @@ namespace task_manager_dotnet.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IPasswordHasher _passwordHasher;
 
     private static UserResponseDto MapToResponse(User user)
     {
@@ -34,9 +35,10 @@ public class UserService : IUserService
     }
 
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher)
     {
         _userRepository = userRepository;
+        _passwordHasher = passwordHasher;
     }
 
 
@@ -72,7 +74,8 @@ public class UserService : IUserService
             throw new ArgumentException("Email já está em uso.");
         }
 
-        string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+        var passwordHash = _passwordHasher.Hash(dto.Password);
+
         var user = new User
         {
             Name = dto.Name,
