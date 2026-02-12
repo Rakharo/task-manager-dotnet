@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using task_manager_dotnet.DTOs;
 using task_manager_dotnet.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using task_manager_dotnet.Extensions;
 
 namespace task_manager_dotnet.Controllers;
 
@@ -22,9 +22,7 @@ public class TaskController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
+        var userId = User.GetUserId();
         var tasks = await _taskService.GetAllAsync(userId);
         return Ok(tasks);
     }
@@ -33,11 +31,7 @@ public class TaskController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
-
+        var userId = User.GetUserId();
         var task = await _taskService.GetByIdAsync(id, userId);
         if (task == null)
         {
@@ -51,10 +45,7 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(CreateTaskDto dto)
     {
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
-
+        var userId = User.GetUserId();
         var createdTask = await _taskService.CreateAsync(dto, userId);
         return Ok(createdTask);
     }
@@ -63,11 +54,7 @@ public class TaskController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTaskDto dto)
     {
-
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
-
+        var userId = User.GetUserId();
         try
         {
             var updatedTask = await _taskService.UpdateAsync(id, dto, userId);
@@ -87,9 +74,7 @@ public class TaskController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
+        var userId = User.GetUserId();
 
         var success = await _taskService.DeleteAsync(id, userId);
         if (!success)
@@ -102,9 +87,7 @@ public class TaskController : ControllerBase
     [HttpPatch("{id}/complete")]
     public async Task<IActionResult> Complete(int id)
     {
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
+        var userId = User.GetUserId();
 
         var success = await _taskService.CompleteAsync(id, userId);
         if (!success)
