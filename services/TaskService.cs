@@ -72,11 +72,18 @@ public class TaskService : ITaskService
         return MapToResponse(createdTask);
     }
 
-    public async Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto)
+    public async Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto, int userId)
     {
         var task = await _repository.GetByIdAsync(id);
         if (task == null)
+        {
             throw new ArgumentException("Tarefa não encontrada.");
+        }
+
+        if (task.UserId != userId)
+        {
+            throw new UnauthorizedAccessException("Você não tem permissão para editar esta tarefa.");
+        }
 
         task.Title = dto.Title;
         task.Description = dto.Description;

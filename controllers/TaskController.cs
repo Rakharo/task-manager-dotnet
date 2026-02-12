@@ -56,10 +56,19 @@ public class TaskController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTaskDto dto)
     {
+
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
         try
         {
-            var updatedTask = await _taskService.UpdateAsync(id, dto);
+            var updatedTask = await _taskService.UpdateAsync(id, dto, userId);
             return Ok(updatedTask);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
         }
         catch (ArgumentException)
         {

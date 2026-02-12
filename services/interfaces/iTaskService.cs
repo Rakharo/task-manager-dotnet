@@ -1,4 +1,3 @@
-using task_manager_dotnet.Models;
 using task_manager_dotnet.DTOs;
 
 
@@ -9,7 +8,7 @@ public interface ITaskService
     Task<List<TaskResponseDto>> GetAllAsync();
     Task<TaskResponseDto?> GetByIdAsync(int id);
     Task<TaskResponseDto> CreateAsync(CreateTaskDto dto, int userId);
-    Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto);
+    Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto, int userId);
     Task<bool> DeleteAsync(int id);
     Task<bool> CompleteAsync(int id);
 }
