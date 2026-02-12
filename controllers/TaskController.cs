@@ -12,18 +12,19 @@ namespace task_manager_dotnet.Controllers;
 public class TaskController : ControllerBase
 {
     private readonly ITaskService _taskService;
+    private int UserId => User.GetUserId(); // Propriedade para obter o ID do usuário autenticado a partir dos claims
 
     public TaskController(ITaskService taskService)
     {
         _taskService = taskService;
     }
 
+
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var userId = User.GetUserId();
-        var tasks = await _taskService.GetAllAsync(userId);
+        var tasks = await _taskService.GetAllAsync(UserId);
         return Ok(tasks);
     }
 
@@ -31,8 +32,7 @@ public class TaskController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var userId = User.GetUserId();
-        var task = await _taskService.GetByIdAsync(id, userId);
+        var task = await _taskService.GetByIdAsync(id, UserId);
         if (task == null)
         {
             return NotFound();
@@ -45,8 +45,7 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post(CreateTaskDto dto)
     {
-        var userId = User.GetUserId();
-        var createdTask = await _taskService.CreateAsync(dto, userId);
+        var createdTask = await _taskService.CreateAsync(dto, UserId);
         return Ok(createdTask);
     }
 
@@ -54,10 +53,9 @@ public class TaskController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTaskDto dto)
     {
-        var userId = User.GetUserId();
         try
         {
-            var updatedTask = await _taskService.UpdateAsync(id, dto, userId);
+            var updatedTask = await _taskService.UpdateAsync(id, dto, UserId);
             return Ok(updatedTask);
         }
         catch (UnauthorizedAccessException ex)
@@ -74,9 +72,7 @@ public class TaskController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var userId = User.GetUserId();
-
-        var success = await _taskService.DeleteAsync(id, userId);
+        var success = await _taskService.DeleteAsync(id, UserId);
         if (!success)
             return NotFound();
 
@@ -87,9 +83,7 @@ public class TaskController : ControllerBase
     [HttpPatch("{id}/complete")]
     public async Task<IActionResult> Complete(int id)
     {
-        var userId = User.GetUserId();
-
-        var success = await _taskService.CompleteAsync(id, userId);
+        var success = await _taskService.CompleteAsync(id, UserId);
         if (!success)
             return NotFound();
 
