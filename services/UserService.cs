@@ -151,6 +151,20 @@ public class UserService : IUserService
 
         return true;
     }
+    public async Task<bool> EnableAsync(int id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.Status = true;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+
+        return true;
+    }
     public async Task<User?> GetByLoginAsync(string login)
     {
         return (await _userRepository.GetAllAsync())

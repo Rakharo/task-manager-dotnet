@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using task_manager_dotnet.DTOs;
 using task_manager_dotnet.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace task_manager_dotnet.Controllers;
 
@@ -16,6 +17,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -23,6 +25,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -54,6 +57,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateUserDto dto)
     {
@@ -68,6 +72,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -78,10 +83,22 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPatch("{id}/disable")]
     public async Task<IActionResult> Disable(int id)
     {
         var success = await _userService.DisableAsync(id);
+        if (!success)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpPatch("{id}/enable")]
+    public async Task<IActionResult> Enable(int id)
+    {
+        var success = await _userService.EnableAsync(id);
         if (!success)
             return NotFound();
 
