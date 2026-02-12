@@ -22,7 +22,10 @@ public class TaskController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var tasks = await _taskService.GetAllAsync();
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+        var tasks = await _taskService.GetAllAsync(userId);
         return Ok(tasks);
     }
 
@@ -31,7 +34,11 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
 
-        var task = await _taskService.GetByIdAsync(id);
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var task = await _taskService.GetByIdAsync(id, userId);
         if (task == null)
         {
             return NotFound();
@@ -80,7 +87,11 @@ public class TaskController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var success = await _taskService.DeleteAsync(id);
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var success = await _taskService.DeleteAsync(id, userId);
         if (!success)
             return NotFound();
 
@@ -91,7 +102,11 @@ public class TaskController : ControllerBase
     [HttpPatch("{id}/complete")]
     public async Task<IActionResult> Complete(int id)
     {
-        var success = await _taskService.CompleteAsync(id);
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var success = await _taskService.CompleteAsync(id, userId);
         if (!success)
             return NotFound();
 

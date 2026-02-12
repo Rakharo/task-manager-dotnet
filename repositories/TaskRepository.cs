@@ -14,15 +14,17 @@ public class TaskRepository : ITaskRepository
         _context = context;
     }
 
-    public async Task<List<TaskItem>> GetAllAsync()
+    public async Task<List<TaskItem>> GetAllAsync(int userId)
     {
-        return await _context.Tasks.Include(t => t.User).ToListAsync();
+        return await _context.Tasks.Where(t => t.UserId == userId).ToListAsync();
     }
 
-    public async Task<TaskItem?> GetByIdAsync(int id)
+    public async Task<TaskItem?> GetByIdAndUserIdAsync(int id, int userId)
     {
-        return await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == id);
+        return await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
     }
+
 
     public async Task<TaskItem> CreateAsync(TaskItem task)
     {

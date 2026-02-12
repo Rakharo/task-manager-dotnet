@@ -1,4 +1,3 @@
-
 using task_manager_dotnet.Models;
 using task_manager_dotnet.Repositories.Interfaces;
 using task_manager_dotnet.Services.Interfaces;
@@ -33,15 +32,15 @@ public class TaskService : ITaskService
     }
 
 
-    public async Task<List<TaskResponseDto>> GetAllAsync()
+    public async Task<List<TaskResponseDto>> GetAllAsync(int userId)
     {
-        var tasks = await _repository.GetAllAsync();
+        var tasks = await _repository.GetAllAsync(userId);
         return tasks.Select(MapToResponse).ToList();
     }
 
-    public async Task<TaskResponseDto?> GetByIdAsync(int id)
+    public async Task<TaskResponseDto?> GetByIdAsync(int id, int userId)
     {
-        var task = await _repository.GetByIdAsync(id);
+        var task = await _repository.GetByIdAndUserIdAsync(id, userId);
         if (task == null)
         {
             return null;
@@ -74,7 +73,7 @@ public class TaskService : ITaskService
 
     public async Task<TaskResponseDto> UpdateAsync(int id, UpdateTaskDto dto, int userId)
     {
-        var task = await _repository.GetByIdAsync(id);
+        var task = await _repository.GetByIdAndUserIdAsync(id, userId);
         if (task == null)
         {
             throw new ArgumentException("Tarefa não encontrada.");
@@ -94,26 +93,31 @@ public class TaskService : ITaskService
         return MapToResponse(updatedTask);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, int userId)
     {
-        var task = await _repository.GetByIdAsync(id);
+        var task = await _repository.GetByIdAndUserIdAsync(id, userId);
         if (task == null)
         {
             throw new ArgumentException("Tarefa não encontrada.");
         }
-        else
+        if (task.UserId != userId)
         {
-            await _repository.RemoveAsync(task);
-            return true;
+            throw new UnauthorizedAccessException("Você não tem permissão para excluir esta tarefa.");
         }
+        await _repository.RemoveAsync(task);
+        return true;
     }
 
-    public async Task<bool> CompleteAsync(int id)
+    public async Task<bool> CompleteAsync(int id, int userId)
     {
-        var task = await _repository.GetByIdAsync(id);
+        var task = await _repository.GetByIdAndUserIdAsync(id, userId);
         if (task == null)
         {
             return false;
+        }
+        if (task.UserId != userId)
+        {
+            throw new UnauthorizedAccessException("Você não tem permissão para completar esta tarefa.");
         }
 
         task.Status = true;
