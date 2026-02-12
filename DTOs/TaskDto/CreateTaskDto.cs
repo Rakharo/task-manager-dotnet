@@ -9,6 +9,5 @@ public class CreateTaskDto
     [MaxLength(150)]
     public string Title { get; set; } = null!;
     public string? Description { get; set; } = null!;
-    public int UserId { get; set; }
 
 }

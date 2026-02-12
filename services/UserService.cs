@@ -151,4 +151,21 @@ public class UserService : IUserService
 
         return true;
     }
+    public async Task<User?> GetByLoginAsync(string login)
+    {
+        return (await _userRepository.GetAllAsync())
+            .FirstOrDefault(u => u.Login == login);
+    }
+
+    public async Task<bool> ValidatePasswordAsync(string login, string password)
+    {
+        var user = (await _userRepository.GetAllAsync()).FirstOrDefault(u => u.Login == login);
+
+        if (user == null || !user.Status)
+        {
+            return false;
+        }
+
+        return _passwordHasher.Verify(password, user.PasswordHash);
+    }
 }

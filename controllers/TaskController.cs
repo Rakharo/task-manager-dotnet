@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using task_manager_dotnet.DTOs;
 using task_manager_dotnet.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace task_manager_dotnet.Controllers;
 
@@ -16,6 +18,7 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -23,9 +26,11 @@ public class TaskController : ControllerBase
         return Ok(tasks);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
+
         var task = await _taskService.GetByIdAsync(id);
         if (task == null)
         {
@@ -35,18 +40,19 @@ public class TaskController : ControllerBase
         return Ok(task);
     }
 
+    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CreateTaskDto dto)
+    public async Task<IActionResult> Post(CreateTaskDto dto)
     {
-        var createdTask = await _taskService.CreateAsync(dto);
-
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = createdTask.Id },
-            createdTask
+        var userId = int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
         );
+
+        var createdTask = await _taskService.CreateAsync(dto, userId);
+        return Ok(createdTask);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] UpdateTaskDto dto)
     {
@@ -61,6 +67,7 @@ public class TaskController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -71,6 +78,7 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPatch("{id}/complete")]
     public async Task<IActionResult> Complete(int id)
     {

@@ -55,7 +55,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, [FromBody] UpdateUserDto dto)  
+    public async Task<IActionResult> Put(int id, [FromBody] UpdateUserDto dto)
     {
         try
         {

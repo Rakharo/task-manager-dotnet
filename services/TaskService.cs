@@ -50,9 +50,9 @@ public class TaskService : ITaskService
         return MapToResponse(task);
     }
 
-    public async Task<TaskResponseDto> CreateAsync(CreateTaskDto dto)
+    public async Task<TaskResponseDto> CreateAsync(CreateTaskDto dto, int userId)
     {
-        var user = await _userRepository.GetByIdAsync(dto.UserId);
+        var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
         {
             throw new ArgumentException("Usuário não encontrado.");
@@ -62,7 +62,7 @@ public class TaskService : ITaskService
         {
             Title = dto.Title,
             Description = dto.Description,
-            UserId = dto.UserId,
+            UserId = userId,
             Status = false,
             CreatedAt = DateTime.UtcNow
         };
